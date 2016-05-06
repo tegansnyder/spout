@@ -84,13 +84,22 @@ EOD;
      */
     protected function getFillsSectionContent()
     {
-        return <<<EOD
-<fills count="1">
-    <fill>
-        <patternFill patternType="none"/>
-    </fill>
-</fills>
-EOD;
+        $registeredStyles = $this->getRegisteredStyles();
+        $fillsCount = count($registeredStyles);
+        $content = sprintf('<fills count="%d">', $fillsCount);
+        foreach ($registeredStyles as $style) {
+            if ($style->shouldApplyBackgroundColor()) {
+                $content .= sprintf(
+                    '<fill><patternFill patternType="solid"><fgColor rgb="%s"/><bgColor rgb="%s"/></patternFill></fill>',
+                    $style->getBackgroundColor(),
+                    $style->getBackgroundColor()
+                );
+            } else {
+                $content .= '<fill><patternFill patternType="none" /></fill>';
+            }
+        }
+        $content .= '</fills>';
+        return $content;
     }
 
     /**
@@ -139,7 +148,7 @@ EOD;
         $content = '<cellXfs count="' . count($registeredStyles) . '">';
 
         foreach ($registeredStyles as $style) {
-            $content .= '<xf numFmtId="0" fontId="' . $style->getId() . '" fillId="0" borderId="0" xfId="0"';
+            $content .= '<xf numFmtId="0" fontId="' . $style->getId() . '" fillId="' . $style->getId() .  '" borderId="0" xfId="0"';
 
             if ($style->shouldApplyFont()) {
                 $content .= ' applyFont="1"';

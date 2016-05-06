@@ -115,6 +115,7 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
             ->setFontSize(15)
             ->setFontColor(Color::RED)
             ->setFontName('Cambria')
+            ->setBackgroundColor(Color::BLUE)
             ->build();
 
         $this->writeToXLSXFileWithMultipleStyles($dataRows, $fileName, [$style, $style2]);
@@ -124,6 +125,12 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
 
         $fontElements = $fontsDomElement->getElementsByTagName('font');
         $this->assertEquals(3, $fontElements->length, 'There should be 3 associated "font" elements, including the default one.');
+
+        $fillsDomElement = $this->getXmlSectionFromStylesXmlFile($fileName, 'fills');
+        $this->assertEquals(3, $fillsDomElement->getAttribute('count'), 'There should be 3 fills, including the default one.');
+
+        $fillsElements = $fillsDomElement->getElementsByTagName('fill');
+        $this->assertEquals(3, $fillsElements->length, 'There should be 3 associated "fill" elements, including the default one.');
 
         // First font should be the default one
         $defaultFontElement = $fontElements->item(0);
@@ -149,6 +156,18 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
         $this->assertFirstChildHasAttributeEquals('15', $thirdFontElement, 'sz', 'val');
         $this->assertFirstChildHasAttributeEquals(Color::toARGB(Color::RED), $thirdFontElement, 'color', 'rgb');
         $this->assertFirstChildHasAttributeEquals('Cambria', $thirdFontElement, 'name', 'val');
+
+        // The second fill//patternFill should have an attribute patternType="none"
+        $secondFillElement = $fillsElements->item(1);
+        $this->assertFirstChildHasAttributeEquals('none', $secondFillElement, 'patternFill', 'patternType');
+
+        // The third fill//patternFill should have an attribute patternType="solid"
+        $thirdFillElement = $fillsElements->item(2);
+        $this->assertFirstChildHasAttributeEquals('solid', $thirdFillElement, 'patternFill', 'patternType');
+        $fgColor = $thirdFillElement->getElementsByTagName('fgColor')->item(0)->getAttribute('rgb');
+        $bgColor = $thirdFillElement->getElementsByTagName('bgColor')->item(0)->getAttribute('rgb');
+        $this->assertEquals(Color::BLUE, $fgColor, 'The foreground color should equal to Color::BLUE');
+        $this->assertEquals(Color::BLUE, $bgColor, 'The foreground color should equal the default Color::BLUE');
     }
 
     /**
@@ -205,7 +224,7 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
         ];
         $style = (new StyleBuilder())->setShouldWrapText()->build();
 
-        $this->writeToXLSXFile($dataRows, $fileName,$style);
+        $this->writeToXLSXFile($dataRows, $fileName, $style);
 
         $cellXfsDomElement = $this->getXmlSectionFromStylesXmlFile($fileName, 'cellXfs');
         $xfElement = $cellXfsDomElement->getElementsByTagName('xf')->item(1);
@@ -230,6 +249,27 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
         $xfElement = $cellXfsDomElement->getElementsByTagName('xf')->item(1);
         $this->assertEquals(1, $xfElement->getAttribute('applyAlignment'));
         $this->assertFirstChildHasAttributeEquals('1', $xfElement, 'alignment', 'wrapText');
+    }
+
+    public function testDefaultBackgroundColor()
+    {
+        $fileName = 'test_default_background_color.xlsx';
+        $dataRows = [
+            ["defaultBgColor"],
+        ];
+        $style = (new StyleBuilder())->setBackgroundColor()->build();
+        $this->writeToXLSXFile($dataRows, $fileName, $style);
+        $fillsDomElement = $this->getXmlSectionFromStylesXmlFile($fileName, 'fills');
+        $this->assertEquals(2, $fillsDomElement->getAttribute('count'), 'There should be 2 fills, including the default one.');
+
+        $fillsElements = $fillsDomElement->getElementsByTagName('fill');
+        // The second fill//patternFill should have an attribute patternType="solid"
+        $secondFillElement = $fillsElements->item(1);
+        $this->assertFirstChildHasAttributeEquals('solid', $secondFillElement, 'patternFill', 'patternType');
+        $fgColor = $secondFillElement->getElementsByTagName('fgColor')->item(0)->getAttribute('rgb');
+        $bgColor = $secondFillElement->getElementsByTagName('bgColor')->item(0)->getAttribute('rgb');
+        $this->assertEquals(Style::DEFAULT_BACKGROUND_COLOR, $fgColor, 'The foreground color should equal the default');
+        $this->assertEquals(Style::DEFAULT_BACKGROUND_COLOR, $bgColor, 'The foreground color should equal the default');
     }
 
     /**

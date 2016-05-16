@@ -81,9 +81,9 @@ class SheetHelper
 
         // make sure the sheets are sorted by index
         // (as the sheets are not necessarily in this order in the XML file)
-        usort($sheets, function ($sheet1, $sheet2) {
-            return ($sheet1->getIndex() - $sheet2->getIndex());
-        });
+        //usort($sheets, function ($sheet1, $sheet2) {
+        //    return ($sheet1->getIndex() - $sheet2->getIndex());
+        //});
 
         return $sheets;
     }

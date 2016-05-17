@@ -3,6 +3,7 @@
 namespace Box\Spout\Writer\ODS\Helper;
 
 use Box\Spout\Writer\Common\Helper\AbstractStyleHelper;
+use Box\Spout\Writer\Style\BorderPart;
 
 /**
  * Class StyleHelper
@@ -152,7 +153,6 @@ EOD;
         return $content;
     }
 
-
     /**
      * Returns the contents of the "<office:font-face-decls>" section, inside "content.xml" file.
      *
@@ -259,6 +259,14 @@ EOD;
         if ($style->shouldApplyBackgroundColor()) {
             $content .= sprintf('
                 <style:table-cell-properties fo:background-color="#%s"/>', $style->getBackgroundColor());
+        }
+
+        if ($style->shouldApplyBorder()) {
+            $el = '<style:table-cell-properties %s />';
+            $borders = array_map(function (BorderPart $borderPart) {
+                return BorderHelper::serializeBorderPart($borderPart);
+            }, $style->getBorder()->getParts());
+            $content .= sprintf($el, implode(' ', $borders));
         }
 
         $content .= '</style:style>';

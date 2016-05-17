@@ -122,7 +122,7 @@ class StyleBuilder
     }
 
     /**
-     *  Sets a background color
+     * Sets a background color
      *
      * @api
      * @param $color
@@ -131,6 +131,19 @@ class StyleBuilder
     public function setBackgroundColor($color = Style::DEFAULT_BACKGROUND_COLOR)
     {
         $this->style->setBackgroundColor($color);
+        return $this;
+    }
+
+    /**
+     * Set a border
+     *
+     * @api
+     * @param Border $border
+     * @return $this
+     */
+    public function setBorder(Border $border)
+    {
+        $this->style->setBorder($border);
         return $this;
     }
 

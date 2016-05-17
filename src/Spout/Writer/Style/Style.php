@@ -68,6 +68,15 @@ class Style
     /** @var bool */
     protected $hasSetBackgroundColor = false;
 
+    /**
+     * @var Border
+     */
+    protected $border = null;
+
+    /**
+     * @var bool Whether border properties should be applied
+     */
+    protected $shouldApplyBorder = false;
 
     /**
      * @return int|null
@@ -85,6 +94,32 @@ class Style
     {
         $this->id = $id;
         return $this;
+    }
+
+    /**
+     * @return Border
+     */
+    public function getBorder()
+    {
+        return $this->border;
+    }
+
+    /**
+     * @param Border $border
+     */
+    public function setBorder(Border $border)
+    {
+        $this->shouldApplyBorder = true;
+        $this->border = $border;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function shouldApplyBorder()
+    {
+        return $this->shouldApplyBorder;
     }
 
     /**
@@ -338,8 +373,13 @@ class Style
         if (!$this->hasSetWrapText && $baseStyle->shouldWrapText()) {
             $mergedStyle->setShouldWrapText();
         }
+
         if (!$this->hasSetBackgroundColor && $baseStyle->shouldApplyBackgroundColor()) {
             $mergedStyle->setBackgroundColor($baseStyle->getBackgroundColor());
+        }
+
+        if (!$this->getBorder() && $baseStyle->shouldApplyBorder()) {
+            $mergedStyle->setBorder($baseStyle->getBorder());
         }
 
         return $mergedStyle;

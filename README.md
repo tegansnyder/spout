@@ -125,7 +125,7 @@ The writer always generate CSV files encoded in UTF-8, with a BOM.
 
 #### Row styling
 
-It is possible to apply some formatting options to a row. Spout supports fonts as well as alignment styles.
+It is possible to apply some formatting options to a row. Spout supports fonts, background as well as alignment styles.
 
 ```php
 use Box\Spout\Common\Type;
@@ -138,6 +138,7 @@ $style = (new StyleBuilder())
            ->setFontSize(15)
            ->setFontColor(Color::BLUE)
            ->setShouldWrapText()
+           ->setBackgroundColor(Color::YELLOW)
            ->build();
 
 $writer = WriterFactory::create(Type::XLSX);
@@ -162,6 +163,7 @@ Font      | Bold          | `StyleBuilder::setFontBold()`
           | Font size     | `StyleBuilder::setFontSize(14)`
           | Font color    | `StyleBuilder::setFontColor(Color::BLUE)`<br>`StyleBuilder::setFontColor(Color::rgb(0, 128, 255))`
 Alignment | Wrap text     | `StyleBuilder::setShouldWrapText()`
+Background| Background color | `StyleBuilder::setBackgroundColor(Color::BLUE)`
 
 
 #### New sheet creation

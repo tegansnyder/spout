@@ -122,6 +122,19 @@ class StyleBuilder
     }
 
     /**
+     *  Sets a background color
+     *
+     * @api
+     * @param $color
+     * @return $this
+     */
+    public function setBackgroundColor($color = Style::DEFAULT_BACKGROUND_COLOR)
+    {
+        $this->style->setBackgroundColor($color);
+        return $this;
+    }
+
+    /**
      * Returns the configured style. The style is cached and can be reused.
      *
      * @api

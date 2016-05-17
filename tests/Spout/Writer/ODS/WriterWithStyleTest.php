@@ -110,11 +110,13 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
             ->setFontItalic()
             ->setFontUnderline()
             ->setFontStrikethrough()
+            ->setBackgroundColor()
             ->build();
         $style2 = (new StyleBuilder())
             ->setFontSize(15)
             ->setFontColor(Color::RED)
             ->setFontName('Cambria')
+            ->setBackgroundColor(Color::GREEN)
             ->build();
 
         $this->writeToODSFileWithMultipleStyles($dataRows, $fileName, [$style, $style2]);
@@ -128,12 +130,14 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
         $this->assertFirstChildHasAttributeEquals('italic', $customFont1Element, 'text-properties', 'fo:font-style');
         $this->assertFirstChildHasAttributeEquals('solid', $customFont1Element, 'text-properties', 'style:text-underline-style');
         $this->assertFirstChildHasAttributeEquals('solid', $customFont1Element, 'text-properties', 'style:text-line-through-style');
+        $this->assertFirstChildHasAttributeEquals('#' . Color::WHITE, $customFont1Element, 'table-cell-properties', 'fo:background-color');
 
         // Third font should contain data from the second created style
         $customFont2Element = $cellStyleElements[2];
         $this->assertFirstChildHasAttributeEquals('15pt', $customFont2Element, 'text-properties', 'fo:font-size');
         $this->assertFirstChildHasAttributeEquals('#' . Color::RED, $customFont2Element, 'text-properties', 'fo:color');
         $this->assertFirstChildHasAttributeEquals('Cambria', $customFont2Element, 'text-properties', 'style:font-name');
+        $this->assertFirstChildHasAttributeEquals('#' . Color::GREEN, $customFont2Element, 'table-cell-properties', 'fo:background-color');
     }
 
     /**
@@ -208,7 +212,7 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
         ];
         $style = (new StyleBuilder())->setShouldWrapText()->build();
 
-        $this->writeToODSFile($dataRows, $fileName,$style);
+        $this->writeToODSFile($dataRows, $fileName, $style);
 
         $styleElements = $this->getCellStyleElementsFromContentXmlFile($fileName);
         $this->assertEquals(2, count($styleElements), 'There should be 2 styles (default and custom)');
@@ -234,6 +238,23 @@ class WriterWithStyleTest extends \PHPUnit_Framework_TestCase
 
         $customStyleElement = $styleElements[1];
         $this->assertFirstChildHasAttributeEquals('wrap', $customStyleElement, 'table-cell-properties', 'fo:wrap-option');
+    }
+
+    public function testDefaultBackgroundStyle()
+    {
+        $fileName = 'test_default_background_style.ods';
+        $dataRows = [
+            ['defaultBgColor'],
+        ];
+
+        $style = (new StyleBuilder())->setBackgroundColor()->build();
+        $this->writeToODSFile($dataRows, $fileName, $style);
+
+        $styleElements = $this->getCellStyleElementsFromContentXmlFile($fileName);
+        $this->assertEquals(2, count($styleElements), 'There should be 2 styles (default and custom)');
+
+        $customStyleElement = $styleElements[1];
+        $this->assertFirstChildHasAttributeEquals('#' . Style::DEFAULT_BACKGROUND_COLOR, $customStyleElement, 'table-cell-properties', 'fo:background-color');
     }
 
     /**

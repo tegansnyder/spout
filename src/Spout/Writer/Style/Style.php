@@ -14,6 +14,7 @@ class Style
     const DEFAULT_FONT_SIZE = 11;
     const DEFAULT_FONT_COLOR = Color::BLACK;
     const DEFAULT_FONT_NAME = 'Arial';
+    const DEFAULT_BACKGROUND_COLOR = Color::WHITE;
 
     /** @var int|null Style ID */
     protected $id = null;
@@ -60,6 +61,13 @@ class Style
     protected $shouldWrapText = false;
     /** @var bool Whether the wrap text property was set */
     protected $hasSetWrapText = false;
+
+    /** @var string Background color */
+    protected $backgroundColor = null;
+
+    /** @var bool */
+    protected $hasSetBackgroundColor = false;
+
 
     /**
      * @return int|null
@@ -244,6 +252,34 @@ class Style
     }
 
     /**
+     * Sets the background color
+     * @param $color
+     */
+    public function setBackgroundColor($color = self::DEFAULT_BACKGROUND_COLOR)
+    {
+        $this->hasSetBackgroundColor = true;
+        $this->backgroundColor = $color;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBackgroundColor()
+    {
+        return $this->backgroundColor;
+    }
+
+    /**
+     *
+     * @return bool Whether the background color should be applied
+     */
+    public function shouldApplyBackgroundColor()
+    {
+        return $this->hasSetBackgroundColor;
+    }
+
+    /**
      * Serializes the style for future comparison with other styles.
      * The ID is excluded from the comparison, as we only care about
      * actual style properties.
@@ -301,6 +337,9 @@ class Style
         }
         if (!$this->hasSetWrapText && $baseStyle->shouldWrapText()) {
             $mergedStyle->setShouldWrapText();
+        }
+        if (!$this->hasSetBackgroundColor && $baseStyle->shouldApplyBackgroundColor()) {
+            $mergedStyle->setBackgroundColor($baseStyle->getBackgroundColor());
         }
 
         return $mergedStyle;
